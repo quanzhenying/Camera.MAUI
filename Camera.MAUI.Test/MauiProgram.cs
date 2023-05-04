@@ -22,7 +22,7 @@ namespace Camera.MAUI.Test
                 });
 
 #if DEBUG
-		builder.Logging.AddDebug();
+		    builder.Logging.AddDebug();
 #endif
             builder.Services.AddSingleton<CameraViewModel>();
             return builder.Build();
