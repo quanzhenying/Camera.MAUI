@@ -162,6 +162,81 @@ internal class MauiCameraView: GridLayout
         return result;
     }
 
+    internal async Task<CameraResult> StartRecordingToDirAsync(string dir, Action<string> callback, int width, int height, int maxDuration)
+    {
+        var result = CameraResult.Success;
+        if (initiated && !recording)
+        {
+            if (await CameraView.RequestPermissions(true, false)) // write app internal folder
+            {
+                if (started) StopCamera();
+                if (cameraView.Camera != null)
+                {
+                    try
+                    {
+                        camChars = cameraManager.GetCameraCharacteristics(cameraView.Camera.DeviceId);
+
+                        StreamConfigurationMap map = (StreamConfigurationMap)camChars.Get(CameraCharacteristics.ScalerStreamConfigurationMap);
+                        videoSize = ChooseVideoSize(map.GetOutputSizes(Class.FromType(typeof(ImageReader))));
+                        recording = true;
+
+                        InitMediaRecorder(dir, callback, width, height, maxDuration);
+
+                        cameraManager.OpenCamera(cameraView.Camera.DeviceId, executorService, stateListener);
+                        started = true;
+                    }
+                    catch
+                    {
+                        result = CameraResult.AccessError;
+                    }
+                }
+                else
+                    result = CameraResult.NoCameraSelected;
+            }
+            else
+                result = CameraResult.AccessDenied;
+        }
+        else
+            result = CameraResult.NotInitiated;
+
+        return result;
+    }
+
+    internal void InitMediaRecorder(string dir, Action<string> callback, int width, int height, int maxDuration, bool IsContinue = false)
+    {
+        if (!recording)
+            return;
+
+        if (OperatingSystem.IsAndroidVersionAtLeast(31))
+            mediaRecorder = new MediaRecorder(context);
+        else
+            mediaRecorder = new MediaRecorder();
+        audioManager.Mode = Mode.Normal;
+        mediaRecorder.SetAudioSource(AudioSource.Mic);
+        mediaRecorder.SetVideoSource(VideoSource.Surface);
+        mediaRecorder.SetOutputFormat(OutputFormat.Mpeg4);
+        mediaRecorder.SetMaxDuration(maxDuration);
+        string file = System.IO.Path.Combine($"{dir}", $"{DateTime.Now:yyyyMMddHHmmss}.mp4");
+        mediaRecorder.SetOutputFile(file);
+        mediaRecorder.SetOnInfoListener(new RecorderInfoListener(this, dir, callback, file, width, height, maxDuration));
+        //mediaRecorder.SetVideoEncodingBitRate(10000000);
+        mediaRecorder.SetVideoFrameRate(30);
+        mediaRecorder.SetVideoSize(width, height);
+        mediaRecorder.SetVideoEncoder(VideoEncoder.H264);
+        mediaRecorder.SetAudioEncoder(AudioEncoder.Aac);
+        IWindowManager windowManager = context.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();
+        int rotation = (int)windowManager.DefaultDisplay.Rotation;
+        int orientation = ORIENTATIONS.Get(rotation);
+        mediaRecorder.SetOrientationHint(orientation);
+
+        mediaRecorder.Prepare();
+
+        if(IsContinue)
+            StartPreview();
+
+        UpdatePreview();
+    }
+
     private void StartPreview()
     {
         while (textureView.SurfaceTexture == null) Thread.Sleep(100);

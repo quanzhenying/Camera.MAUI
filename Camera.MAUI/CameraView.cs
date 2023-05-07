@@ -459,6 +459,31 @@ public class CameraView : View, ICameraView
 
         return result;
     }
+
+#if ANDROID
+    public async Task<CameraResult> StartRecordingToDirAsync(string dir, Action<string> callback, int width = 1920, int height = 1080, int maxDuration = 5000)
+    {
+        CameraResult result = CameraResult.AccessError;
+        if (Camera != null)
+        {
+            if (Handler != null && Handler is CameraViewHandler handler)
+            {
+                result = await handler.StartRecordingToDirAsync(dir, callback, width, height, maxDuration);
+                if (result == CameraResult.Success)
+                {
+                    BarCodeResults = null;
+                    OnPropertyChanged(nameof(MinZoomFactor));
+                    OnPropertyChanged(nameof(MaxZoomFactor));
+                }
+            }
+        }
+        else
+            result = CameraResult.NoCameraSelected;
+
+        return result;
+    }
+#endif
+
     /// <summary>
     /// Stop playback of the selected camera async.
     /// </summary>

@@ -48,7 +48,6 @@ Changed Android preview aspect ratio</PackageReleaseNotes>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="Camera.MAUI.csproj" />
 	  <None Include="camera.maui.png">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
