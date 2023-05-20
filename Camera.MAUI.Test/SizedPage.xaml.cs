@@ -33,9 +33,9 @@ public partial class SizedPage : ContentPage
         cameraView.BarCodeOptions = new ZXingHelper.BarcodeDecodeOptions
         {
             AutoRotate = true,
-            PossibleFormats = { ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.EAN_13 },
+            PossibleFormats = { BarcodeFormat.EAN_13 },
             ReadMultipleCodes = false,
-            TryHarder = true,
+            TryHarder = false,
             TryInverted = true
         };
         BindingContext = cameraView;
@@ -87,7 +87,7 @@ public partial class SizedPage : ContentPage
 #if IOS
             var result = await cameraView.StartRecordingAsync(Path.Combine(FileSystem.Current.CacheDirectory, "Video.mov"));
 #else
-            var result = await cameraView.StartRecordingAsync(Path.Combine(FileSystem.Current.CacheDirectory, "Video.mp4"));
+            var result = await cameraView.StartRecordingAsync(Path.Combine(FileSystem.Current.CacheDirectory, "Video.mp4"), new Size(1280, 720));
 #endif
             Debug.WriteLine("Start recording result " + result);
             //}
@@ -166,11 +166,7 @@ public partial class SizedPage : ContentPage
 
     private void CheckBox_CheckedChanged_1(object sender, CheckedChangedEventArgs e)
     {
-        if (e.Value && cameraView.AutoSnapShotSeconds <= 0 || !cameraView.AutoSnapShotAsImageSource)
-            snapPreview.SetBinding(Image.SourceProperty, nameof(cameraView.SnapShot));
-        else if (cameraView.AutoSnapShotSeconds <= 0)
-            snapPreview.RemoveBinding(Image.SourceProperty);
-        cameraView.TakeAutoSnapShot = e.Value;
+        cameraView.FlashMode = e.Value ? FlashMode.Enabled : FlashMode.Disabled;
     }
 
     private void MicroPicker_SelectedIndexChanged(object sender, EventArgs e)
