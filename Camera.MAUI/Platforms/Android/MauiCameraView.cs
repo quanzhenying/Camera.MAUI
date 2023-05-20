@@ -222,7 +222,10 @@ internal class MauiCameraView: GridLayout
 
                         InitMediaRecorder(dir, callback, width, height, maxDuration);
 
-                        cameraManager.OpenCamera(cameraView.Camera.DeviceId, executorService, stateListener);
+                        if (OperatingSystem.IsAndroidVersionAtLeast(28))
+                            cameraManager.OpenCamera(cameraView.Camera.DeviceId, executorService, stateListener);
+                        else
+                            cameraManager.OpenCamera(cameraView.Camera.DeviceId, stateListener, null);
                         started = true;
                     }
                     catch
