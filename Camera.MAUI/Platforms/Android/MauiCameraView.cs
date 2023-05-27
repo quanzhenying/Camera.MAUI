@@ -202,7 +202,7 @@ internal class MauiCameraView: GridLayout
         return result;
     }
 
-    internal async Task<CameraResult> StartRecordingToDirAsync(string dir, Action<string> callback, int width, int height, int maxDuration)
+    internal async Task<CameraResult> StartRecordingToDirAsync(string dir, Action<string> callback, Size size, int maxDuration)
     {
         var result = CameraResult.Success;
         if (initiated && !recording)
@@ -217,10 +217,13 @@ internal class MauiCameraView: GridLayout
                         camChars = cameraManager.GetCameraCharacteristics(cameraView.Camera.DeviceId);
 
                         StreamConfigurationMap map = (StreamConfigurationMap)camChars.Get(CameraCharacteristics.ScalerStreamConfigurationMap);
-                        videoSize = ChooseVideoSize(map.GetOutputSizes(Class.FromType(typeof(ImageReader))));
+
+                        //videoSize = ChooseVideoSize(map.GetOutputSizes(Class.FromType(typeof(ImageReader))));
+                        videoSize = size;
+
                         recording = true;
 
-                        InitMediaRecorder(dir, callback, width, height, maxDuration);
+                        InitMediaRecorder(dir, callback, maxDuration);
 
                         if (OperatingSystem.IsAndroidVersionAtLeast(28))
                             cameraManager.OpenCamera(cameraView.Camera.DeviceId, executorService, stateListener);
@@ -245,7 +248,7 @@ internal class MauiCameraView: GridLayout
         return result;
     }
 
-    internal void InitMediaRecorder(string dir, Action<string> callback, int width, int height, int maxDuration, bool IsContinue = false)
+    internal void InitMediaRecorder(string dir, Action<string> callback, int maxDuration, bool IsContinue = false)
     {
         if (!recording)
             return;
@@ -261,10 +264,13 @@ internal class MauiCameraView: GridLayout
         mediaRecorder.SetMaxDuration(maxDuration);
         string file = System.IO.Path.Combine($"{dir}", $"{DateTime.Now:yyyyMMddHHmmss}.mp4");
         mediaRecorder.SetOutputFile(file);
-        mediaRecorder.SetOnInfoListener(new RecorderInfoListener(this, dir, callback, file, width, height, maxDuration));
-        //mediaRecorder.SetVideoEncodingBitRate(10000000);
-        mediaRecorder.SetVideoFrameRate(30);
-        mediaRecorder.SetVideoSize(width, height);
+        mediaRecorder.SetOnInfoListener(new RecorderInfoListener(this, dir, callback, file, maxDuration));
+        //10000000
+        //2048000 2M
+        //256000 0.8M
+        mediaRecorder.SetVideoEncodingBitRate(500000);
+        //mediaRecorder.SetVideoFrameRate(18);
+        mediaRecorder.SetVideoSize(videoSize.Width, videoSize.Height);
         mediaRecorder.SetVideoEncoder(VideoEncoder.H264);
         mediaRecorder.SetAudioEncoder(AudioEncoder.Aac);
         IWindowManager windowManager = context.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();

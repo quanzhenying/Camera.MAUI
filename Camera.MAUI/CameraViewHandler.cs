@@ -86,11 +86,11 @@ internal partial class CameraViewHandler : ViewHandler<CameraView, PlatformView>
         return Task.Run(() => { return CameraResult.AccessError; });
     }
 #if ANDROID 
-    public Task<CameraResult> StartRecordingToDirAsync(string dir, Action<string> callback, int width, int height, int maxDuration)
+    public Task<CameraResult> StartRecordingToDirAsync(string dir, Action<string> callback, Size size, int maxDuration)
     {
         if (PlatformView != null)
         {
-            return PlatformView.StartRecordingToDirAsync(dir, callback, width, height, maxDuration);
+            return PlatformView.StartRecordingToDirAsync(dir, callback, new Android.Util.Size((int)size.Width, (int)size.Height), maxDuration);
         }
         return Task.Run(() => { return CameraResult.AccessError; });
     }

@@ -485,14 +485,14 @@ public class CameraView : View, ICameraView
     }
 
 #if ANDROID
-    public async Task<CameraResult> StartRecordingToDirAsync(string dir, Action<string> callback, int width = 1920, int height = 1080, int maxDuration = 5000)
+    public async Task<CameraResult> StartRecordingToDirAsync(string dir, Action<string> callback, Size size, int maxDuration = 5000)
     {
         CameraResult result = CameraResult.AccessError;
         if (Camera != null)
         {
             if (Handler != null && Handler is CameraViewHandler handler)
             {
-                result = await handler.StartRecordingToDirAsync(dir, callback, width, height, maxDuration);
+                result = await handler.StartRecordingToDirAsync(dir, callback, size, maxDuration);
                 if (result == CameraResult.Success)
                 {
                     BarCodeResults = null;

@@ -21,17 +21,13 @@ namespace Camera.MAUI.Platforms.Android
         private string dir { get; set; }
         private string file { get; set; }
         private Action<string> callback { get; set; }
-        private int width { get; set; }
-        private int height { get; set; }
         private int maxDuration { get; set; }
-        public RecorderInfoListener(MauiCameraView mauiCameraView, string dir, Action<string> callback, string file, int width, int height, int maxDuration)
+        public RecorderInfoListener(MauiCameraView mauiCameraView, string dir, Action<string> callback, string file, int maxDuration)
         {
             this.mauiCameraView = mauiCameraView;
             this.dir = dir;
             this.file = file;
             this.callback = callback;
-            this.width = width;
-            this.height = height;
             this.maxDuration = maxDuration;
         }
         public void OnInfo(MediaRecorder mr, [GeneratedEnum] MediaRecorderInfo what, int extra)
@@ -45,7 +41,7 @@ namespace Camera.MAUI.Platforms.Android
 
                 Task.Run(() => callback(file));
 
-                mauiCameraView.InitMediaRecorder(dir, callback, width, height, maxDuration, true);
+                mauiCameraView.InitMediaRecorder(dir, callback, maxDuration, true);
             }
         }
     }
