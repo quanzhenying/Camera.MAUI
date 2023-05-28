@@ -265,12 +265,12 @@ internal class MauiCameraView: GridLayout
         string file = System.IO.Path.Combine($"{dir}", $"{DateTime.Now:yyyyMMddHHmmss}.mp4");
         mediaRecorder.SetOutputFile(file);
         mediaRecorder.SetOnInfoListener(new RecorderInfoListener(this, dir, callback, file, maxDuration));
+        mediaRecorder.SetVideoSize(videoSize.Width, videoSize.Height);
+        mediaRecorder.SetVideoFrameRate(30);
+        mediaRecorder.SetVideoEncodingBitRate(768000);
         //10000000
         //2048000 2M
         //256000 0.8M
-        mediaRecorder.SetVideoEncodingBitRate(500000);
-        //mediaRecorder.SetVideoFrameRate(18);
-        mediaRecorder.SetVideoSize(videoSize.Width, videoSize.Height);
         mediaRecorder.SetVideoEncoder(VideoEncoder.H264);
         mediaRecorder.SetAudioEncoder(AudioEncoder.Aac);
         IWindowManager windowManager = context.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();
