@@ -338,8 +338,25 @@ internal class MauiCameraView: GridLayout
             AdjustAspectRatio(videoSize.Width, videoSize.Height);
             SetZoomFactor(cameraView.ZoomFactor);
             //previewSession.SetRepeatingRequest(previewBuilder.Build(), null, null);
-            if (recording) 
-                mediaRecorder?.Start();
+            if (recording)
+            {
+                bool flag = false;
+                int i = 0;
+                while (!flag && i < 5) //Start() inner Exception, try 5 times
+                {
+                    try
+                    {
+                        mediaRecorder?.Start();
+                        flag = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"mediaRecorder?.Start() Exception: {e}");
+                        Task.Delay(500).GetAwaiter().GetResult();
+                    }
+                    i++;
+                }
+            }
         }
         catch (CameraAccessException e)
         {
